@@ -10,8 +10,9 @@ export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
 
 // see https://www.sanity.io/docs/api-versioning for how versioning works
 export const apiVersion =
-  // @TODO update the api version to the one with source maps
-  process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2022-11-15'
+  // process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2023-05-03'
+  // @TODO testing scope
+  'X'
 
 // The route that hosts the Studio, used for the embedded Studio routing as well as Visual Editing
 export const basePath = '/studio'

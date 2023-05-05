@@ -1,20 +1,12 @@
-import { PreviewSuspense } from '@sanity/preview-kit'
 import { ProjectPage } from 'components/pages/project/ProjectPage'
-import { PreviewWrapper } from 'components/preview/PreviewWrapper'
 import {
   getHomePageTitle,
   getProjectBySlug,
-  getProjectPaths,
   getSettings,
 } from 'lib/sanity.client'
-import { resolveHref } from 'lib/sanity.links'
 import { GetServerSideProps } from 'next'
-import { lazy } from 'react'
 import { ProjectPayload, SettingsPayload } from 'types'
 
-const ProjectPreview = lazy(
-  () => import('components/pages/project/ProjectPreview')
-)
 
 interface PageProps {
   project?: ProjectPayload
@@ -34,30 +26,6 @@ interface PreviewData {
 
 export default function ProjectSlugRoute(props: PageProps) {
   const { homePageTitle, settings, project, preview, token } = props
-
-  if (preview) {
-    return (
-      <PreviewSuspense
-        fallback={
-          <PreviewWrapper>
-            <ProjectPage
-              homePageTitle={homePageTitle}
-              project={project}
-              settings={settings}
-              preview={preview}
-            />
-          </PreviewWrapper>
-        }
-      >
-        <ProjectPreview
-          token={token}
-          project={project}
-          settings={settings}
-          homePageTitle={homePageTitle}
-        />
-      </PreviewSuspense>
-    )
-  }
 
   return (
     <ProjectPage
@@ -79,9 +47,9 @@ export const getServerSideProps: GetServerSideProps<
   const token = previewData.token
 
   const [settings, project, homePageTitle] = await Promise.all([
-    getSettings({ token }),
-    getProjectBySlug({ token, slug: params.slug }),
-    getHomePageTitle({ token }),
+    getSettings(),
+    getProjectBySlug({  slug: params.slug }),
+    getHomePageTitle(),
   ])
 
   if (!project) {

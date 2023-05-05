@@ -30,6 +30,10 @@ export function HomePage({ page, settings, preview }: HomePageProps) {
           {showcaseProjects && showcaseProjects.length > 0 && (
             <div className="mx-auto max-w-[100rem] rounded-md border">
               {showcaseProjects.map((project, key) => {
+                if(!project) {
+                  console.log({showcaseProjects})
+                  return null
+                }
                 const href = resolveHref(project._type, project.slug)
                 if (!href) {
                   return null

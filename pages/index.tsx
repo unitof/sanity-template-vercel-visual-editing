@@ -1,20 +1,11 @@
-import { PreviewSuspense } from '@sanity/preview-kit'
 import { HomePage } from 'components/pages/home/HomePage'
-import { PreviewWrapper } from 'components/preview/PreviewWrapper'
 import { getHomePage, getSettings } from 'lib/sanity.client'
 import { GetServerSideProps } from 'next'
-import { lazy } from 'react'
 import { HomePagePayload, SettingsPayload } from 'types'
-
-const HomePagePreview = lazy(
-  () => import('components/pages/home/HomePagePreview')
-)
 
 interface PageProps {
   page: HomePagePayload
   settings: SettingsPayload
-  preview: boolean
-  token: string | null
 }
 
 interface Query {
@@ -26,21 +17,7 @@ interface PreviewData {
 }
 
 export default function IndexPage(props: PageProps) {
-  const { page, settings, preview, token } = props
-
-  if (preview) {
-    return (
-      <PreviewSuspense
-        fallback={
-          <PreviewWrapper>
-            <HomePage page={page} settings={settings} preview={preview} />
-          </PreviewWrapper>
-        }
-      >
-        <HomePagePreview token={token} />
-      </PreviewSuspense>
-    )
-  }
+  const { page, settings } = props
 
   return <HomePage page={page} settings={settings} />
 }
@@ -55,21 +32,16 @@ export const getServerSideProps: GetServerSideProps<
   PageProps,
   Query,
   PreviewData
-> = async (ctx) => {
-  const { preview = false, previewData = {} } = ctx
-
-  const token = previewData.token
+> = async () => {
   const [settings, page = fallbackPage] = await Promise.all([
-    getSettings({ token }),
-    getHomePage({ token }),
+    getSettings(),
+    getHomePage(),
   ])
 
   return {
     props: {
       page,
       settings,
-      preview,
-      token: previewData.token ?? null,
     },
   }
 }

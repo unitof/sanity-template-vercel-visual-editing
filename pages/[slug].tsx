@@ -1,25 +1,13 @@
-import { PreviewSuspense } from '@sanity/preview-kit'
 import { Page } from 'components/pages/page/Page'
-import { PreviewWrapper } from 'components/preview/PreviewWrapper'
-import {
-  getHomePageTitle,
-  getPageBySlug,
-  getPagePaths,
-  getSettings,
-} from 'lib/sanity.client'
-import { resolveHref } from 'lib/sanity.links'
+import { getHomePageTitle, getPageBySlug, getSettings } from 'lib/sanity.client'
 import type { GetServerSideProps } from 'next'
 import { lazy } from 'react'
 import { PagePayload, SettingsPayload } from 'types'
-
-const PagePreview = lazy(() => import('components/pages/page/PagePreview'))
 
 interface PageProps {
   page?: PagePayload
   settings?: SettingsPayload
   homePageTitle?: string
-  preview: boolean
-  token: string | null
 }
 
 interface Query {
@@ -31,38 +19,14 @@ interface PreviewData {
 }
 
 export default function ProjectSlugRoute(props: PageProps) {
-  const { homePageTitle, settings, page, preview, token } = props
-
-  if (preview) {
-    return (
-      <PreviewSuspense
-        fallback={
-          <PreviewWrapper>
-            <Page
-              homePageTitle={homePageTitle}
-              page={page}
-              settings={settings}
-              preview={preview}
-            />
-          </PreviewWrapper>
-        }
-      >
-        <PagePreview
-          token={token}
-          page={page}
-          settings={settings}
-          homePageTitle={homePageTitle}
-        />
-      </PreviewSuspense>
-    )
-  }
+  const { homePageTitle, settings, page } = props
 
   return (
     <Page
       homePageTitle={homePageTitle}
       page={page}
       settings={settings}
-      preview={preview}
+      preview={false}
     />
   )
 }
@@ -72,14 +36,12 @@ export const getServerSideProps: GetServerSideProps<
   Query,
   PreviewData
 > = async (ctx) => {
-  const { preview = false, previewData = {}, params = {} } = ctx
-
-  const token = previewData.token
+  const { params = {} } = ctx
 
   const [settings, page, homePageTitle] = await Promise.all([
-    getSettings({ token }),
-    getPageBySlug({ token, slug: params.slug }),
-    getHomePageTitle({ token }),
+    getSettings(),
+    getPageBySlug({ slug: params.slug }),
+    getHomePageTitle(),
   ])
 
   if (!page) {
@@ -93,8 +55,6 @@ export const getServerSideProps: GetServerSideProps<
       page,
       settings,
       homePageTitle,
-      preview,
-      token: previewData.token ?? null,
     },
   }
 }
